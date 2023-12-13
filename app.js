@@ -136,11 +136,11 @@ app.get('/user/followers', authenticationToken, async (request, response) => {
   const getUserIdQuery = `SELECT user_id FROM user WHERE username='${username}';`
   const getUserId = await database.get(getUserIdQuery)
 
-  const getFollowerIdsQuery = `SELECT following_user_id FROM follower WHERE follower_user_id=${getUserId.user_id};`
+  const getFollowerIdsQuery = `SELECT follower_user_id FROM follower WHERE following_user_id=${getUserId.user_id};`
   const getFollowerIdsArray = await database.all(getFollowerIdsQuery)
   console.log(getFollowerIdsArray)
   const getFollowerIds = getFollowerIdsArray.map(eachUser => {
-    return eachUser.following_user_id
+    return eachUser.follower_user_id
   })
   console.log(`${getFollowerIds}`)
 
@@ -319,7 +319,7 @@ app.post('/user/tweets/', authenticationToken, async (request, response) => {
 
   const responseResult = await database.run(postRequestQuery)
   const tweet_id = responseResult.lastID
-  response.send('Created a tweet')
+  response.send('Created a Tweet')
 })
 
 app.delete(
