@@ -74,7 +74,7 @@ const authenticationToken = (request, response, next) => {
   if (authHeader !== undefined) {
     jwtToken = authHeader.split(' ')[1]
   } else {
-    response.status(400)
+    response.status(401)
     response.send('Invalid JWT Token')
   }
 
@@ -106,9 +106,9 @@ app.get(
       return eachUser.following_user_id
     })
 
-    const getTweetQuery = `select user.username, tweet.tweet, tweet.date_time as dateTime from user inner join tweet
-                          on user.user_id = tweet.user_id where user.user_id in (${getFollowerIdsSimple})
-                          order by tweet.date_time dsec limit 4 ;`
+    const getTweetQuery = `SELECT user.username, tweet.tweet, tweet.date_time AS dateTime FROM user INNER JOIN tweet
+                          ON user.user_id = tweet.user_id WHERE user.user_id IN (${getFollowerIdsSimple})
+                          ORDER BY tweet.date_time DESC LIMIT 4 ;`
     const responseResult = await database.all(getTweetQuery)
     response.send(responseResult)
   },
@@ -116,7 +116,7 @@ app.get(
 
 app.get('/user/following/', authenticationToken, async (request, response) => {
   let {username} = request
-  const getUserIdQuery = `SELECT user_id FROM user WHER username='${username}';`
+  const getUserIdQuery = `SELECT user_id FROM user WHERE username='${username}';`
   const getUserId = await database.get(getUserIdQuery)
 
   const getFollowerIdsQuery = `SELECT following_user_id FROM follower WHERE follower_user_id=${getUserId.user_id};`
@@ -133,7 +133,7 @@ app.get('/user/following/', authenticationToken, async (request, response) => {
 
 app.get('/user/followers', authenticationToken, async (request, response) => {
   let {username} = request
-  const getUserIdQuery = `SELECT user_id FROM user WHER username='${username}';`
+  const getUserIdQuery = `SELECT user_id FROM user WHERE username='${username}';`
   const getUserId = await database.get(getUserIdQuery)
 
   const getFollowerIdsQuery = `SELECT following_user_id FROM follower WHERE follower_user_id=${getUserId.user_id};`
@@ -326,7 +326,7 @@ app.delete(
   '/tweets/:tweetId/',
   authenticationToken,
   async (request, response) => {
-    const {tweetId} = request / params
+    const {tweetId} = request.params
 
     let {username} = request
     const getUserIdQuery = `SELECT user_id FROM user WHERE username='${username}';`
